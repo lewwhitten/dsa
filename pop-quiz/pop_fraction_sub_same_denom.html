@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pop-Cue Classroom Tool</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background: #f5f7fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    /* ==== EXPECTATIONS BAR ==== */
+    #expectations {
+      color: #cc0000;
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+      font-size: 1.1em;
+      line-height: 1.4;
+    }
+
+    /* ==== TWO-COLUMN LAYOUT ==== */
+    #layout {
+      border-collapse: separate;
+      border-spacing: 40px;
+    }
+    #layout td {
+      vertical-align: middle;
+    }
+
+    /* ==== POP BUTTON STYLES ==== */
+    #popBlock { text-align: center; }
+    #popper {
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffcc00, #ff9900); /* start yellow */
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2em; color: white; cursor: pointer;
+      user-select: none;
+      transition: transform 0.05s, background 0.3s;
+      margin-bottom: 14px;
+    }
+    #popper:active { transform: scale(0.9); }
+    #counter { font-size: 1.1em; margin-bottom: 8px; }
+    button {
+      padding: 6px 12px; border: none; border-radius: 5px;
+      background: #0077cc; color: #fff; cursor: pointer;
+    }
+    button:hover { background: #005fa3; }
+
+    /* ==== MATH PROBLEM STYLES ==== */
+    #problemBlock { min-width: 380px; text-align: center; }
+    h1 { margin: 0 0 10px; color: #333; font-weight: 600; }
+    #problem { font-size: 2.4em; line-height: 1.1; }
+    .fraction {
+      display: inline-block;
+      text-align: center;
+      vertical-align: middle;
+      margin: 0 6px;
+    }
+    .fraction span { display: block; padding: 0 6px; }
+    .fraction .line { border-top: 2px solid #000; margin: 3px 0; }
+
+    @media (max-width: 800px) {
+      #layout { border-spacing: 20px; }
+      #problem { font-size: 2em; }
+      #popper { width: 160px; height: 160px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- === EXPECTATIONS BANNER (edit text here) === -->
+  <div id="expectations">
+    Mr. Bellezas &amp; Whitten Expectations:<br>
+    No talking or glancing at neighbor’s whiteboard.<br>
+    A <strong>Pop</strong> = <strong>MBI</strong> and <strong>zero quiz score</strong>.<br>
+    Hold your board up for collection when done!
+  </div>
+
+  <!-- === MAIN TWO-COLUMN LAYOUT === -->
+  <table id="layout">
+    <tr>
+      <!-- LEFT: Pop button -->
+      <td id="popBlock">
+        <div id="popper">POP<br>QUIZ!</div>
+        <div id="counter">Pops: 0</div>
+        <button id="resetBtn">Reset / New Problem</button>
+        <!-- Sound file: replace “pop.mp3” with any local .mp3 name -->
+        <audio id="popSound" src="pop.mp3" preload="auto"></audio>
+      </td>
+
+      <!-- RIGHT: Math problem -->
+      <td id="problemBlock">
+        <h1>Fraction Subtraction</h1>
+        <div id="problem"></div>
+      </td>
+    </tr>
+  </table>
+
+  <script>
+    // === POP BUTTON LOGIC ===
+    let count = 0;
+    let isRed = false;
+    const popper  = document.getElementById('popper');
+    const counter = document.getElementById('counter');
+    const sound   = document.getElementById('popSound');
+
+    popper.addEventListener('click', () => {
+      count++;
+      counter.textContent = 'Pops: ' + count;
+      sound.currentTime = 0;
+      sound.play();
+
+      // Toggle yellow ↔ red each click
+      popper.style.background = isRed
+        ? 'radial-gradient(circle at 30% 30%, #ffcc00, #ff9900)'
+        : 'radial-gradient(circle at 30% 30%, #cc0000, #660000)';
+      isRed = !isRed;
+    });
+
+    // === FRACTION PROBLEM GENERATOR ===
+    const problemEl = document.getElementById('problem');
+    const resetBtn  = document.getElementById('resetBtn');
+
+    // Helper for fraction layout
+    function fracHTML(n, d) {
+      return `
+        <span class="fraction">
+          <span>${n}</span>
+          <span class="line"></span>
+          <span>${d}</span>
+        </span>
+      `;
+    }
+
+    // Random integer helper
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // === EDIT HERE if you want to change math problem type ===
+    // Current: random fraction × fraction
+    function generateProblem() {
+      const n1 = randomInt(1, 9);
+      const d1 = randomInt(2, 12);
+      const n2 = randomInt(1, 9);
+      const d2 = randomInt(2, 12);
+      problemEl.innerHTML = `${fracHTML(n1, d1)} - ${fracHTML(n2, d1)}`;
+    }
+
+    // === RESET FUNCTION ===
+    function resetAndNewProblem() {
+      count = 0;
+      counter.textContent = 'Pops: 0';
+      generateProblem();
+    }
+
+    resetBtn.addEventListener('click', resetAndNewProblem);
+
+    // === INITIAL LOAD ===
+    generateProblem();
+  </script>
+
+</body>
+</html>
