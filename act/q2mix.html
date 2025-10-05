@@ -6,415 +6,262 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
-      --accent:#b30000;      /* school red? tweak if needed */
+      --accent:#b30000;
       --ink:#222;
       --bg:#f8fafc;
       --card:#ffffff;
     }
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+    html,body{
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;
     }
 
-    /* Layout: ruler on left, content on right */
-    .wrap {
-      display: grid;
-      grid-template-columns: 80px 1fr;
-      min-height: 100vh;
+    .wrap{
+      display:grid;
+      grid-template-columns:80px 1fr;
+      min-height:100vh;
     }
 
-    /* Vertical Ruler Button (Reset) */
-    .ruler {
-      background: linear-gradient(#f4f4f4, #fefefe);
-      border-right: 1px solid #ddd;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    /* Ruler Reset */
+    .ruler{
+      background:linear-gradient(#f4f4f4,#fefefe);
+      border-right:1px solid #ddd;
+      position:sticky;
+      top:0;
+      height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
-    .ruler button {
-      writing-mode: vertical-rl;
-      transform: rotate(180deg); /* keep text upright */
-      background: #f7f2d6;
-      border: 2px solid #c9b87a;
-      border-radius: 10px;
-      padding: 18px 10px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      position: relative;
-      user-select: none;
+    .ruler button{
+      writing-mode:vertical-rl;
+      transform:rotate(180deg);
+      background:#f7f2d6;
+      border:2px solid #c9b87a;
+      border-radius:10px;
+      padding:18px 10px;
+      font-weight:700;
+      letter-spacing:0.5px;
+      cursor:pointer;
+      box-shadow:0 2px 8px rgba(0,0,0,0.08);
+      position:relative;
+      user-select:none;
     }
-    /* Ruler tick marks */
-    .ruler button::before {
-      content:"";
-      position:absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 8px;
-      bottom: 8px;
-      width: 0;
-      border-left: 2px solid #444;
-      opacity: 0.25;
-    }
-    .ruler button::after {
-      content:"";
-      position:absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 8px;
-      bottom: 8px;
-      width: 100%;
-      background:
-        /* major ticks every ~28px */
-        repeating-linear-gradient(
-          to bottom,
-          transparent 0 24px,
-          #444 24px 26px
-        ),
-        /* minor ticks */
-        repeating-linear-gradient(
-          to bottom,
-          transparent 0 4px,
-          rgba(0,0,0,0.25) 4px 5px
-        );
-      mix-blend-mode: multiply;
-      opacity: 0.25;
-      pointer-events: none;
-    }
-    .ruler button:hover { background:#fbf6dd; }
+    .ruler button:hover{background:#fbf6dd;}
 
-    /* Main content */
-    .main {
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      min-height: 100vh;
+    .main{
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      min-height:100vh;
     }
-    header {
-      padding: 24px 24px 8px;
-    }
-    header h1 {
-      margin: 0 0 6px;
-      font-size: clamp(1.25rem, 1.2rem + 1vw, 1.6rem);
-    }
-    header .sub {
-      color: #555;
-      font-size: 0.95rem;
+    header{padding:24px 24px 8px;}
+    header h1{margin:0 0 6px;font-size:1.6rem;}
+    header .sub{color:#555;font-size:0.95rem;}
+
+    .grade-tag{
+      display:inline-block;
+      font-weight:700;
+      color:var(--accent);
+      margin-left:24px;
+      margin-top:8px;
     }
 
-    .card {
-      background: var(--card);
-      margin: 16px 24px;
-      padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
-      border: 1px solid #ececec;
+    /* Cards layout for problems side by side */
+    .problem-pair{
+      display:flex;
+      justify-content:space-evenly;
+      align-items:stretch;
+      gap:20px;
+      margin:16px 24px;
+      flex-wrap:wrap;
     }
-    .grade-tag {
-      display: inline-block;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 10px;
+    .problem-card{
+      background:var(--card);
+      flex:1 1 360px;
+      min-width:320px;
+      border-radius:12px;
+      padding:16px;
+      box-shadow:0 6px 20px rgba(0,0,0,0.06);
+      border:1px solid #ececec;
     }
+    .problem-card h3{margin:0 0 8px;font-size:1.05rem;}
+    .stem{margin:6px 0 10px;line-height:1.5;}
+    .choices{display:grid;gap:8px;}
+    .choice{
+      background:#fafafa;
+      border:1px solid #e9e9e9;
+      border-radius:10px;
+      padding:8px 10px;
+    }
+    .choice b{min-width:1.2rem;display:inline-block;color:#666;}
 
-    .problem {
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px dashed #ddd;
-    }
-    .problem h3 {
-      margin: 0 0 8px;
-      font-size: 1.05rem;
-    }
-    .stem {
-      margin: 6px 0 10px;
-      line-height: 1.5;
-    }
-    .choices {
-      display: grid;
-      gap: 8px;
-    }
-    .choice {
-      background: #fafafa;
-      border: 1px solid #e9e9e9;
-      border-radius: 10px;
-      padding: 10px 12px;
-    }
-    .choice b {
-      display: inline-block;
-      min-width: 1.2rem;
-      color: #666;
-    }
-
-    footer {
-      padding: 16px 24px 24px;
-      color: #666;
-      font-size: 0.95rem;
-      text-align: center;
-    }
-    footer .club {
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    /* Simple helpers for fractions (like your previous pages) */
-    .frac {
-      display: inline-block;
-      vertical-align: middle;
+    footer{
+      padding:16px 24px 24px;
+      color:#666;
+      font-size:0.95rem;
       text-align:center;
-      margin: 0 2px;
     }
-    .frac > span { display: block; padding: 0 6px; }
-    .frac .bar { border-top: 2px solid #000; margin: 2px 0; }
+    footer .club{color:var(--accent);font-weight:700;}
 
-    /* Make it comfy on small screens */
-    @media (max-width: 720px) {
-      .wrap { grid-template-columns: 64px 1fr; }
-      .card { margin: 12px 16px; }
+    .frac{
+      display:inline-block;
+      vertical-align:middle;
+      text-align:center;
+      margin:0 2px;
+    }
+    .frac>span{display:block;padding:0 6px;}
+    .frac .bar{border-top:2px solid #000;margin:2px 0;}
+
+    @media(max-width:720px){
+      .wrap{grid-template-columns:64px 1fr;}
+      .problem-card{min-width:100%;}
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <!-- LEFT: Vertical Ruler Reset -->
     <aside class="ruler">
-      <button id="resetBtn" title="Load a new random grade-level pair">Reset • New Pair</button>
+      <button id="resetBtn" title="Load new random grade-level pair">Reset • New Pair</button>
     </aside>
 
-    <!-- RIGHT: Content -->
     <main class="main">
       <header>
         <h1>ACT Style Math Problems</h1>
-        <div class="sub">Quarter 2 Mix · Two problems shown at a time · Multiple Choice</div>
+        <div class="sub">Quarter 2 Mix · Two problems side by side · Multiple Choice</div>
       </header>
 
-      <!-- Pair container -->
-      <section id="pairContainer" class="card">
-        <!-- JS will inject grade label + Problem 1 + Problem 2 here -->
-      </section>
+      <div class="grade-tag" id="gradeLabel"></div>
+      <section id="pairContainer" class="problem-pair"></section>
 
-      <footer>
-        This website created by <span class="club">Del Sol Code Club</span>.
-      </footer>
+      <footer>This website created by <span class="club">Del Sol Code Club</span>.</footer>
     </main>
   </div>
 
   <script>
-    /*************************************************************
-     * 🔧 HOW TO EDIT / ADD PROBLEMS
-     * -----------------------------------------------------------
-     * Each entry in BANK represents ONE grade level (6–12).
-     * For each grade level, provide TWO problems:
-     *   - stem: the question text (HTML allowed)
-     *   - choices: array of 5 choices (strings)
-     *   - correct: "A"|"B"|"C"|"D"|"E" (for your reference—no auto-grading shown)
-     *
-     * To add or change, edit inside BANK below.
-     *************************************************************/
-
+    /* ---------- Problem Bank: edit here ---------- */
     const BANK = [
-      // 6th Grade (Pair)
       {
-        grade: "6th Grade",
-        items: [
+        grade:"6th Grade",
+        items:[
           {
-            stem: "What is the value of 7 × 8?",
-            choices: ["A. 48", "B. 54", "C. 56", "D. 64", "E. 72"],
-            correct: "C"
+            stem:"What is the value of 7 × 8?",
+            choices:["A. 48","B. 54","C. 56","D. 64","E. 72"]
           },
           {
-            stem: "Which fraction is equivalent to <span class='frac'><span>1</span><span class='bar'></span><span>2</span></span>?",
-            choices: [
-              "A. 1/3",
-              "B. 2/3",
-              "C. 3/6",
-              "D. 2/5",
-              "E. 1/4"
-            ],
-            correct: "C"
+            stem:"Which fraction is equivalent to <span class='frac'><span>1</span><span class='bar'></span><span>2</span></span>?",
+            choices:["A. 1/3","B. 2/3","C. 3/6","D. 2/5","E. 1/4"]
           }
         ]
       },
-
-      // 7th Grade (Pair)
       {
-        grade: "7th Grade",
-        items: [
+        grade:"7th Grade",
+        items:[
           {
-            stem: "Evaluate: 3x + 5 when x = 4.",
-            choices: ["A. 12", "B. 15", "C. 17", "D. 20", "E. 27"],
-            correct: "D"
+            stem:"Evaluate: 3x + 5 when x = 4.",
+            choices:["A. 12","B. 15","C. 17","D. 20","E. 27"]
           },
           {
-            stem: "Which is the better buy: 8 pencils for $4.40 or 12 pencils for $6.60?",
-            choices: [
-              "A. 8 for $4.40",
-              "B. 12 for $6.60",
-              "C. Same price per pencil",
-              "D. Not enough info",
-              "E. Neither"
-            ],
-            correct: "C"
+            stem:"Which is the better buy: 8 pencils for $4.40 or 12 pencils for $6.60?",
+            choices:["A. 8 for $4.40","B. 12 for $6.60","C. Same price per pencil","D. Not enough info","E. Neither"]
           }
         ]
       },
-
-      // 8th Grade (Pair)
       {
-        grade: "8th Grade",
-        items: [
+        grade:"8th Grade",
+        items:[
           {
-            stem: "What is the slope of the line through (2, 5) and (6, 13)?",
-            choices: ["A. 1", "B. 2", "C. 3", "D. 4", "E. 8"],
-            correct: "B"
+            stem:"What is the slope of the line through (2, 5) and (6, 13)?",
+            choices:["A. 1","B. 2","C. 3","D. 4","E. 8"]
           },
           {
-            stem: "Solve for y: 2y − 6 = 10.",
-            choices: ["A. 2", "B. 4", "C. 6", "D. 8", "E. 16"],
-            correct: "D"
+            stem:"Solve for y: 2y − 6 = 10.",
+            choices:["A. 2","B. 4","C. 6","D. 8","E. 16"]
           }
         ]
       },
-
-      // 9th Grade (Pair)
       {
-        grade: "9th Grade",
-        items: [
+        grade:"9th Grade",
+        items:[
           {
-            stem: "Which is the y-intercept of the line y = −3x + 7?",
-            choices: ["A. −3", "B. 7", "C. (−3, 0)", "D. (0, 7)", "E. (7, 0)"],
-            correct: "D"
+            stem:"Which is the y-intercept of y = −3x + 7?",
+            choices:["A. −3","B. 7","C. (−3, 0)","D. (0, 7)","E. (7, 0)"]
           },
           {
-            stem: "Solve: 4(x − 2) = 3x + 5.",
-            choices: ["A. −13", "B. −3", "C. 3", "D. 13", "E. 21"],
-            correct: "C"
+            stem:"Solve: 4(x − 2) = 3x + 5.",
+            choices:["A. −13","B. −3","C. 3","D. 13","E. 21"]
           }
         ]
       },
-
-      // 10th Grade (Pair)
       {
-        grade: "10th Grade",
-        items: [
+        grade:"10th Grade",
+        items:[
           {
-            stem: "Which equation has slope 2 and passes through (−1, 3)?",
-            choices: [
-              "A. y = 2x + 3",
-              "B. y = 2x + 5",
-              "C. y = 2x + 1",
-              "D. y = 2x − 1",
-              "E. y = −2x + 1"
-            ],
-            correct: "D"
+            stem:"Which equation has slope 2 and passes through (−1, 3)?",
+            choices:["A. y = 2x + 3","B. y = 2x + 5","C. y = 2x + 1","D. y = 2x − 1","E. y = −2x + 1"]
           },
           {
-            stem: "Simplify: (x + 3)(x − 3).",
-            choices: ["A. x² − 9", "B. x² + 9", "C. x² − 6x + 9", "D. x² + 6x − 9", "E. x² − 3"],
-            correct: "A"
+            stem:"Simplify: (x + 3)(x − 3).",
+            choices:["A. x² − 9","B. x² + 9","C. x² − 6x + 9","D. x² + 6x − 9","E. x² − 3"]
           }
         ]
       },
-
-      // 11th Grade (Pair)
       {
-        grade: "11th Grade",
-        items: [
+        grade:"11th Grade",
+        items:[
           {
-            stem: "The function f(x) = 5(1.2)<sup>x</sup> models growth. What does 1.2 represent?",
-            choices: [
-              "A. Initial amount",
-              "B. Growth factor (20% increase per unit x)",
-              "C. Growth rate (120% per unit x)",
-              "D. Time step",
-              "E. Output unit"
-            ],
-            correct: "B"
+            stem:"The function f(x)=5(1.2)<sup>x</sup> models growth. What does 1.2 represent?",
+            choices:["A. Initial amount","B. Growth factor (20% increase per unit x)","C. Growth rate (120% per unit x)","D. Time step","E. Output unit"]
           },
           {
-            stem: "Given g(x) = −2x + 1 and h(x) = x², what is (h ∘ g)(x)?",
-            choices: [
-              "A. −2x + 1",
-              "B. (−2x + 1)²",
-              "C. −2x² + 1",
-              "D. x² − 2x + 1",
-              "E. 4x² + 1"
-            ],
-            correct: "B"
+            stem:"Given g(x)=−2x+1 and h(x)=x², what is (h ∘ g)(x)?",
+            choices:["A. −2x + 1","B. (−2x + 1)²","C. −2x² + 1","D. x² − 2x + 1","E. 4x² + 1"]
           }
         ]
       },
-
-      // 12th Grade (Pair)
       {
-        grade: "12th Grade",
-        items: [
+        grade:"12th Grade",
+        items:[
           {
-            stem: "For the arithmetic sequence a<sub>n</sub> = 7 + 3(n − 1), what is a<sub>20</sub>?",
-            choices: ["A. 64", "B. 67", "C. 70", "D. 73", "E. 76"],
-            correct: "D"
+            stem:"For aₙ = 7 + 3(n − 1), what is a₂₀?",
+            choices:["A. 64","B. 67","C. 70","D. 73","E. 76"]
           },
           {
-            stem: "The line 3x − 2y = 10 has slope:",
-            choices: ["A. −3/2", "B. 2/3", "C. 3/2", "D. −2/3", "E. 5"],
-            correct: "C"
+            stem:"The line 3x − 2y = 10 has slope:",
+            choices:["A. −3/2","B. 2/3","C. 3/2","D. −2/3","E. 5"]
           }
         ]
       }
     ];
 
-    /*************************************************************
-     * Rendering logic
-     *************************************************************/
-    const container = document.getElementById("pairContainer");
-    const resetBtn  = document.getElementById("resetBtn");
+    /* ---------- Display Logic ---------- */
+    const container=document.getElementById("pairContainer");
+    const gradeLabel=document.getElementById("gradeLabel");
+    const resetBtn=document.getElementById("resetBtn");
 
     function renderPair(pair){
-      const { grade, items } = pair;
-
-      const problemHTML = items.map((it, idx) => {
-        const letters = ["A","B","C","D","E"];
-        const choicesHTML = it.choices.map((c, i) => {
-          // Ensure choice text already includes "A. ..." etc; if not, prepend.
-          const label = /^[A-E]\.\s/.test(c) ? c : `${letters[i]}. ${c}`;
-          return `<div class="choice"><b>${letters[i]}.</b> ${label.replace(/^[A-E]\.\s/, "")}</div>`;
-        }).join("");
-
-        return `
-          <div class="problem">
-            <h3>Problem ${idx+1}</h3>
-            <div class="stem">${it.stem}</div>
-            <div class="choices">${choicesHTML}</div>
-          </div>
-        `;
-      }).join("");
-
-      container.innerHTML = `
-        <div class="grade-tag">${grade} • ACT Style</div>
-        ${problemHTML}
-      `;
+      gradeLabel.textContent=pair.grade+" • ACT Style";
+      const [p1,p2]=pair.items;
+      container.innerHTML=[p1,p2].map((p,i)=>`
+        <div class="problem-card">
+          <h3>Problem ${i+1}</h3>
+          <div class="stem">${p.stem}</div>
+          <div class="choices">${p.choices.map(c=>`<div class="choice">${c}</div>`).join("")}</div>
+        </div>`).join("");
     }
 
     function randomPair(){
-      const i = Math.floor(Math.random() * BANK.length);
-      return BANK[i];
+      return BANK[Math.floor(Math.random()*BANK.length)];
     }
 
     function loadNewPair(){
       renderPair(randomPair());
-      // optional: scroll to top of content on reset
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({top:0,behavior:"smooth"});
     }
 
-    resetBtn.addEventListener("click", loadNewPair);
-
-    // Initial load
+    resetBtn.addEventListener("click",loadNewPair);
     loadNewPair();
   </script>
 </body>
