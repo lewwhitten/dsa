@@ -5,130 +5,89 @@
   <title>ACT Style Math Problems – Quarter 2 Mix</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root {
-      --crimson: #a40000;
-      --ink: #333;
-      --paper: #f5f7fa;
-      --card: #fff;
-      --shadow: rgba(0,0,0,0.1);
+    :root{
+      --crimson:#a40000;
+      --ink:#333;
+      --paper:#f5f7fa;
+      --card:#fff;
+      --shadow:rgba(0,0,0,0.1);
     }
 
-    html, body {
-      height: 100%;
-      margin: 0;
+    html,body{height:100%;margin:0}
+    body{
+      font-family:'Segoe UI', Tahoma, sans-serif;
+      background:var(--paper);
+      color:var(--ink);
+      text-align:center;
+      padding:40px 20px 120px; /* space for bottom toolbar */
+      box-sizing:border-box;
     }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: var(--paper);
-      color: var(--ink);
-      text-align: center;
-      padding: 40px 20px 120px; /* bottom padding so toolbar doesn't cover content */
-      box-sizing: border-box;
+    h1{color:var(--crimson);margin:0 0 8px;font-size:clamp(1.4rem,2.4vw,2rem)}
+    h3{color:#444;margin:0 0 24px;font-weight:600}
+
+    /* Side-by-side problems layout */
+    #problems{
+      display:flex;
+      justify-content:center;
+      align-items:stretch;
+      gap:40px;
+      margin-top:24px;
+      /* FORCE side-by-side on typical screens */
+      flex-wrap:nowrap;
+      max-width:1200px;
+      margin-left:auto;
+      margin-right:auto;
     }
 
-    h1 {
-      color: var(--crimson);
-      margin: 0 0 8px;
-      font-size: clamp(1.4rem, 2.4vw, 2rem);
+    .problem{
+      background:var(--card);
+      border-radius:12px;
+      box-shadow:0 3px 10px var(--shadow);
+      padding:20px;
+      text-align:left;
+      /* Two equal columns */
+      flex:0 1 520px;         /* preferred width ~520px */
+      min-width:420px;        /* don’t shrink too small */
+      max-width:560px;        /* avoid growing too large */
     }
 
-    h3 {
-      color: #444;
-      margin: 0 0 24px;
-      font-weight: 600;
-    }
+    .problem h2{margin:0 0 10px;color:var(--crimson);font-size:1.05rem}
+    .problem p{font-size:1.08rem;line-height:1.45;margin:0 0 10px}
+    ol{list-style-type:upper-alpha;padding-left:24px;margin:10px 0 0 0}
+    ol li{margin-bottom:8px;font-size:1.05rem}
 
-    /* Side-by-side problems */
-    #problems {
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
-      gap: 40px;
-      margin-top: 24px;
-      flex-wrap: wrap;
-    }
-
-    .problem {
-      background: var(--card);
-      border-radius: 12px;
-      box-shadow: 0 3px 10px var(--shadow);
-      padding: 20px;
-      width: min(420px, 90vw);
-      text-align: left;
-    }
-
-    .problem h2 {
-      margin: 0 0 10px;
-      color: var(--crimson);
-      font-size: 1.05rem;
-    }
-
-    .problem p {
-      font-size: 1.08rem;
-      line-height: 1.45;
-      margin: 0 0 10px;
-    }
-
-    ol {
-      list-style-type: upper-alpha;
-      padding-left: 24px;
-      margin: 10px 0 0 0;
-    }
-
-    ol li {
-      margin-bottom: 8px;
-      font-size: 1.05rem;
-    }
-
-    footer {
-      margin-top: 40px;
-      color: #555;
-      font-size: 0.9em;
-    }
+    footer{margin-top:40px;color:#555;font-size:.9em}
 
     /* Sticky bottom toolbar with ruler look */
-    .toolbar {
-      position: fixed;
-      left: 0; right: 0; bottom: 0;
-      background: #ffeaa7; /* ruler yellow */
-      border-top: 3px solid #e1d090;
-      box-shadow: 0 -4px 12px rgba(0,0,0,0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 16px;
-      gap: 16px;
-      z-index: 1000;
+    .toolbar{
+      position:fixed;left:0;right:0;bottom:0;
+      background:#ffeaa7;border-top:3px solid #e1d090;
+      box-shadow:0 -4px 12px rgba(0,0,0,.12);
+      display:flex;align-items:center;justify-content:center;
+      padding:10px 16px;gap:16px;z-index:1000;
     }
+    .ruler-marks{
+      position:absolute;inset:0;pointer-events:none;
+      background-image:linear-gradient(to right, rgba(0,0,0,.2) 1px, transparent 1px);
+      background-size:20px 100%;opacity:.25;
+    }
+    #resetBtn{
+      position:relative;z-index:1;background:#0077cc;color:#fff;
+      border:none;border-radius:8px;padding:10px 16px;
+      font-weight:700;letter-spacing:.3px;cursor:pointer;
+      box-shadow:0 2px 8px rgba(0,0,0,.15);
+    }
+    #resetBtn:hover{background:#005fa3}
 
-    .ruler-marks {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        linear-gradient(to right, rgba(0,0,0,0.2) 1px, transparent 1px);
-      background-size: 20px 100%;
-      opacity: 0.25;
+    /* RESPONSIVE: only stack on narrow screens */
+    @media (max-width: 900px){
+      #problems{flex-wrap:wrap;gap:20px}
+      .problem{min-width:unset;flex:1 1 100%}
+      body{padding-bottom:140px}
     }
-
-    #resetBtn {
-      position: relative;
-      z-index: 1;
-      background: #0077cc;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 16px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-    #resetBtn:hover { background: #005fa3; }
   </style>
 </head>
-
 <body>
 
   <h1>ACT Style Math Problems</h1>
@@ -151,70 +110,49 @@
 
   <script>
     const gradeProblems = [
-      {
-        grade: 6,
-        problems: [
-          { q: "Simplify: 3/4 × 8", a: ["1/2", "2", "6", "24", "12"], correct: "6" },
-          { q: "Solve: 2x + 5 = 11", a: ["x=2", "x=3", "x=4", "x=5", "x=6"], correct: "x=3" }
-        ]
-      },
-      {
-        grade: 7,
-        problems: [
-          { q: "Simplify: 2/3 ÷ 4", a: ["1/6", "2/12", "1/3", "1/9", "8/3"], correct: "1/6" },
-          { q: "Find slope between (2,5) and (4,9)", a: ["2", "3", "1/2", "4", "5"], correct: "2" }
-        ]
-      },
-      {
-        grade: 8,
-        problems: [
-          { q: "Evaluate: 3(x+2) when x=4", a: ["12", "14", "18", "20", "24"], correct: "18" },
-          { q: "Simplify: 6y - 2y + 3", a: ["8y+3", "4y+3", "8y-3", "6y-2y", "5y"], correct: "4y+3" }
-        ]
-      },
-      {
-        grade: 9,
-        problems: [
-          { q: "Find slope of y = 3x + 7", a: ["3", "7", "1/3", "0", "-3"], correct: "3" },
-          { q: "Solve for y: 2x - y = 6", a: ["y=2x+6", "y=6x-2", "y=2x-6", "y=-2x+6", "y=-2x-6"], correct: "y=2x-6" }
-        ]
-      },
-      {
-        grade: 10,
-        problems: [
-          { q: "Expand: (x + 3)(x + 2)", a: ["x²+5x+6", "x²+6x+5", "x²+3x+2", "x²+2x+3", "x²+4x+6"], correct: "x²+5x+6" },
-          { q: "Factor: x² − 9", a: ["(x+9)(x-9)", "(x+3)(x-3)", "(x+9)(x-1)", "(x+6)(x-6)", "Prime"], correct: "(x+3)(x-3)" }
-        ]
-      },
-      {
-        grade: 11,
-        problems: [
-          { q: "Solve: log₂(x) = 3", a: ["x=6", "x=8", "x=9", "x=12", "x=16"], correct: "x=8" },
-          { q: "Simplify: (3x²y)(2xy³)", a: ["6x³y³", "6x²y³", "6x³y⁴", "5x³y³", "6xy⁵"], correct: "6x³y⁴" }
-        ]
-      },
-      {
-        grade: 12,
-        problems: [
-          { q: "Find derivative of f(x) = 3x²", a: ["3x", "6x", "9x²", "x³", "3x²"], correct: "6x" },
-          { q: "Simplify: sin²θ + cos²θ", a: ["0", "1", "2", "sinθcosθ", "Undefined"], correct: "1" }
-        ]
-      }
+      { grade: 6, problems: [
+        { q: "Simplify: 3/4 × 8", a: ["1/2","2","6","24","12"], correct: "6" },
+        { q: "Solve: 2x + 5 = 11", a: ["x=2","x=3","x=4","x=5","x=6"], correct: "x=3" }
+      ]},
+      { grade: 7, problems: [
+        { q: "Simplify: 2/3 ÷ 4", a: ["1/6","2/12","1/3","1/9","8/3"], correct: "1/6" },
+        { q: "Find slope between (2,5) and (4,9)", a: ["2","3","1/2","4","5"], correct: "2" }
+      ]},
+      { grade: 8, problems: [
+        { q: "Evaluate: 3(x+2) when x=4", a: ["12","14","18","20","24"], correct: "18" },
+        { q: "Simplify: 6y - 2y + 3", a: ["8y+3","4y+3","8y-3","6y-2y","5y"], correct: "4y+3" }
+      ]},
+      { grade: 9, problems: [
+        { q: "Find slope of y = 3x + 7", a: ["3","7","1/3","0","-3"], correct: "3" },
+        { q: "Solve for y: 2x - y = 6", a: ["y=2x+6","y=6x-2","y=2x-6","y=-2x+6","y=-2x-6"], correct: "y=2x-6" }
+      ]},
+      { grade:10, problems: [
+        { q: "Expand: (x + 3)(x + 2)", a: ["x²+5x+6","x²+6x+5","x²+3x+2","x²+2x+3","x²+4x+6"], correct: "x²+5x+6" },
+        { q: "Factor: x² − 9", a: ["(x+9)(x-9)","(x+3)(x-3)","(x+9)(x-1)","(x+6)(x-6)","Prime"], correct: "(x+3)(x-3)" }
+      ]},
+      { grade:11, problems: [
+        { q: "Solve: log₂(x) = 3", a: ["x=6","x=8","x=9","x=12","x=16"], correct: "x=8" },
+        { q: "Simplify: (3x²y)(2xy³)", a: ["6x³y³","6x²y³","6x³y⁴","5x³y³","6xy⁵"], correct: "6x³y⁴" }
+      ]},
+      { grade:12, problems: [
+        { q: "Find derivative of f(x) = 3x²", a: ["3x","6x","9x²","x³","3x²"], correct: "6x" },
+        { q: "Simplify: sin²θ + cos²θ", a: ["0","1","2","sinθcosθ","Undefined"], correct: "1" }
+      ]}
     ];
 
-    function loadRandomProblems() {
-      const set = gradeProblems[Math.floor(Math.random() * gradeProblems.length)];
+    function loadRandomProblems(){
+      const set = gradeProblems[Math.floor(Math.random()*gradeProblems.length)];
       const [p1, p2] = set.problems;
 
       document.getElementById('problem1').innerHTML = `
         <h2>Grade ${set.grade} – Problem 1</h2>
         <p>${p1.q}</p>
-        <ol>${p1.a.map(ans => `<li>${ans}</li>`).join('')}</ol>
+        <ol>${p1.a.map(ans=>`<li>${ans}</li>`).join('')}</ol>
       `;
       document.getElementById('problem2').innerHTML = `
         <h2>Grade ${set.grade} – Problem 2</h2>
         <p>${p2.q}</p>
-        <ol>${p2.a.map(ans => `<li>${ans}</li>`).join('')}</ol>
+        <ol>${p2.a.map(ans=>`<li>${ans}</li>`).join('')}</ol>
       `;
     }
 
