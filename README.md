@@ -1,2 +1,2 @@
-# pop-quiz
-These are pop quizzes for a math class
+# Del Sol Code Club
+Home to room 321 Mr
