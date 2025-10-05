@@ -19,47 +19,61 @@
       background:var(--paper);
       color:var(--ink);
       text-align:center;
-      padding:40px 20px 120px; /* space for bottom toolbar */
+      /* top/right/left padding + space at bottom for toolbar */
+      padding:32px 16px 110px;
       box-sizing:border-box;
     }
 
-    h1{color:var(--crimson);margin:0 0 8px;font-size:clamp(1.4rem,2.4vw,2rem)}
-    h3{color:#444;margin:0 0 24px;font-weight:600}
+    /* Tighter, centered page wrap to bring columns closer */
+    .wrap{
+      max-width:980px;      /* narrower overall width */
+      margin:0 auto;
+    }
 
-    /* Side-by-side problems layout */
+    h1{color:var(--crimson);margin:0 0 6px;font-size:clamp(1.35rem,2.2vw,1.9rem)}
+    h3{color:#444;margin:0 0 18px;font-weight:600}
+
+    /* Side-by-side problems layout (closer gap, narrower cards) */
     #problems{
       display:flex;
       justify-content:center;
       align-items:stretch;
-      gap:40px;
-      margin-top:24px;
-      /* FORCE side-by-side on typical screens */
-      flex-wrap:nowrap;
-      max-width:1200px;
-      margin-left:auto;
-      margin-right:auto;
+      gap:18px;             /* closer together */
+      margin-top:18px;
+      flex-wrap:nowrap;     /* keep side-by-side on normal screens */
     }
 
     .problem{
       background:var(--card);
       border-radius:12px;
       box-shadow:0 3px 10px var(--shadow);
-      padding:20px;
+      padding:16px;         /* tighter padding */
       text-align:left;
-      /* Two equal columns */
-      flex:0 1 520px;         /* preferred width ~520px */
-      min-width:420px;        /* don’t shrink too small */
-      max-width:560px;        /* avoid growing too large */
+      flex:0 1 460px;       /* narrower preferred width */
+      min-width:380px;      /* don’t shrink too small */
+      max-width:480px;
     }
 
-    .problem h2{margin:0 0 10px;color:var(--crimson);font-size:1.05rem}
-    .problem p{font-size:1.08rem;line-height:1.45;margin:0 0 10px}
-    ol{list-style-type:upper-alpha;padding-left:24px;margin:10px 0 0 0}
-    ol li{margin-bottom:8px;font-size:1.05rem}
+    .problem h2{
+      margin:0 0 8px;
+      color:var(--crimson);
+      font-size:1rem;
+    }
+    .problem p{
+      font-size:1.02rem;
+      line-height:1.4;
+      margin:0 0 8px;
+    }
+    ol{
+      list-style-type:upper-alpha;
+      padding-left:22px;
+      margin:8px 0 0 0;
+    }
+    ol li{margin-bottom:6px;font-size:1.02rem}
 
-    footer{margin-top:40px;color:#555;font-size:.9em}
+    footer{margin-top:28px;color:#555;font-size:.9em}
 
-    /* Sticky bottom toolbar with ruler look */
+    /* Sticky bottom toolbar (reset) */
     .toolbar{
       position:fixed;left:0;right:0;bottom:0;
       background:#ffeaa7;border-top:3px solid #e1d090;
@@ -80,27 +94,28 @@
     }
     #resetBtn:hover{background:#005fa3}
 
-    /* RESPONSIVE: only stack on narrow screens */
-    @media (max-width: 900px){
-      #problems{flex-wrap:wrap;gap:20px}
+    /* Stack only on small screens */
+    @media (max-width: 860px){
+      #problems{flex-wrap:wrap;gap:14px}
       .problem{min-width:unset;flex:1 1 100%}
-      body{padding-bottom:140px}
+      body{padding-bottom:130px}
     }
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <h1>ACT Style Math Problems</h1>
+    <h3>Quarter 2 Mix</h3>
 
-  <h1>ACT Style Math Problems</h1>
-  <h3>Quarter 2 Mix</h3>
+    <div id="problems">
+      <div class="problem" id="problem1"></div>
+      <div class="problem" id="problem2"></div>
+    </div>
 
-  <div id="problems">
-    <div class="problem" id="problem1"></div>
-    <div class="problem" id="problem2"></div>
+    <footer>
+      <p>This website created by <strong>Del Sol Code Club</strong></p>
+    </footer>
   </div>
-
-  <footer>
-    <p>This website created by <strong>Del Sol Code Club</strong></p>
-  </footer>
 
   <!-- Sticky bottom toolbar -->
   <div class="toolbar" role="region" aria-label="Controls">
@@ -109,34 +124,35 @@
   </div>
 
   <script>
+    /* ===== Problem bank: 7 grades (6–12), each with a pair ===== */
     const gradeProblems = [
       { grade: 6, problems: [
         { q: "Simplify: 3/4 × 8", a: ["1/2","2","6","24","12"], correct: "6" },
-        { q: "Solve: 2x + 5 = 11", a: ["x=2","x=3","x=4","x=5","x=6"], correct: "x=3" }
+        { q: "Solve: 2x + 5 = 11", a: ["x = 2","x = 3","x = 4","x = 5","x = 6"], correct: "x = 3" }
       ]},
       { grade: 7, problems: [
-        { q: "Simplify: 2/3 ÷ 4", a: ["1/6","2/12","1/3","1/9","8/3"], correct: "1/6" },
-        { q: "Find slope between (2,5) and (4,9)", a: ["2","3","1/2","4","5"], correct: "2" }
+        { q: "Simplify: (2/3) ÷ 4", a: ["1/6","2/12","1/3","1/9","8/3"], correct: "1/6" },
+        { q: "Find slope between (2, 5) and (4, 9)", a: ["2","3","1/2","4","5"], correct: "2" }
       ]},
       { grade: 8, problems: [
-        { q: "Evaluate: 3(x+2) when x=4", a: ["12","14","18","20","24"], correct: "18" },
-        { q: "Simplify: 6y - 2y + 3", a: ["8y+3","4y+3","8y-3","6y-2y","5y"], correct: "4y+3" }
+        { q: "Evaluate: 3(x + 2) for x = 4", a: ["12","14","18","20","24"], correct: "18" },
+        { q: "Simplify: 6y − 2y + 3", a: ["8y + 3","4y + 3","8y − 3","6y − 2y","5y"], correct: "4y + 3" }
       ]},
       { grade: 9, problems: [
-        { q: "Find slope of y = 3x + 7", a: ["3","7","1/3","0","-3"], correct: "3" },
-        { q: "Solve for y: 2x - y = 6", a: ["y=2x+6","y=6x-2","y=2x-6","y=-2x+6","y=-2x-6"], correct: "y=2x-6" }
+        { q: "Find slope of y = 3x + 7", a: ["3","7","1/3","0","−3"], correct: "3" },
+        { q: "Solve for y: 2x − y = 6", a: ["y = 2x + 6","y = 6x − 2","y = 2x − 6","y = −2x + 6","y = −2x − 6"], correct: "y = 2x − 6" }
       ]},
-      { grade:10, problems: [
-        { q: "Expand: (x + 3)(x + 2)", a: ["x²+5x+6","x²+6x+5","x²+3x+2","x²+2x+3","x²+4x+6"], correct: "x²+5x+6" },
-        { q: "Factor: x² − 9", a: ["(x+9)(x-9)","(x+3)(x-3)","(x+9)(x-1)","(x+6)(x-6)","Prime"], correct: "(x+3)(x-3)" }
+      { grade: 10, problems: [
+        { q: "Expand: (x + 3)(x + 2)", a: ["x² + 5x + 6","x² + 6x + 5","x² + 3x + 2","x² + 2x + 3","x² + 4x + 6"], correct: "x² + 5x + 6" },
+        { q: "Factor: x² − 9", a: ["(x + 9)(x − 9)","(x + 3)(x − 3)","(x + 9)(x − 1)","(x + 6)(x − 6)","Prime"], correct: "(x + 3)(x − 3)" }
       ]},
-      { grade:11, problems: [
-        { q: "Solve: log₂(x) = 3", a: ["x=6","x=8","x=9","x=12","x=16"], correct: "x=8" },
+      { grade: 11, problems: [
+        { q: "Solve: log₂(x) = 3", a: ["x = 6","x = 8","x = 9","x = 12","x = 16"], correct: "x = 8" },
         { q: "Simplify: (3x²y)(2xy³)", a: ["6x³y³","6x²y³","6x³y⁴","5x³y³","6xy⁵"], correct: "6x³y⁴" }
       ]},
-      { grade:12, problems: [
+      { grade: 12, problems: [
         { q: "Find derivative of f(x) = 3x²", a: ["3x","6x","9x²","x³","3x²"], correct: "6x" },
-        { q: "Simplify: sin²θ + cos²θ", a: ["0","1","2","sinθcosθ","Undefined"], correct: "1" }
+        { q: "Simplify: sin²θ + cos²θ", a: ["0","1","2","sinθ·cosθ","Undefined"], correct: "1" }
       ]}
     ];
 
