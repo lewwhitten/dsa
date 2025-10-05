@@ -1,2 +1,2 @@
 # Del Sol Code Club
-Home to room 321 Mr
+Math and Homeroom 321, meeting Thursday Morning 6:30 AM at sunrise rail (behind the school), we watch the sunrise together, then walk amoungst trees in the park, sit on a park bench. When the bell rings we go inside, around to the front, to Mr. Ye., Meeting, then done. then off to room 321, where we talk about conspiracy, cartoon, did man step on the moon? After school meeting were win room 321 Countdown to Conspiracy Club: Del Sol Academy of the Arts
