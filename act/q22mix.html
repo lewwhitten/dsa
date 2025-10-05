@@ -3,52 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <title>ACT Style Math Problems – Quarter 2 Mix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    :root {
+      --crimson: #a40000;
+      --ink: #333;
+      --paper: #f5f7fa;
+      --card: #fff;
+      --shadow: rgba(0,0,0,0.1);
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
     body {
       font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: #f5f7fa;
-      margin: 0;
-      padding: 40px;
+      background: var(--paper);
+      color: var(--ink);
       text-align: center;
+      padding: 40px 20px 120px; /* bottom padding so toolbar doesn't cover content */
+      box-sizing: border-box;
     }
 
     h1 {
-      color: #a40000;
-      margin-bottom: 10px;
+      color: var(--crimson);
+      margin: 0 0 8px;
+      font-size: clamp(1.4rem, 2.4vw, 2rem);
     }
 
     h3 {
-      color: #333;
-      margin-top: 0;
+      color: #444;
+      margin: 0 0 24px;
+      font-weight: 600;
     }
 
+    /* Side-by-side problems */
     #problems {
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      gap: 60px; /* spacing between problems */
-      margin-top: 40px;
+      align-items: stretch;
+      gap: 40px;
+      margin-top: 24px;
       flex-wrap: wrap;
     }
 
     .problem {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 3px 10px var(--shadow);
       padding: 20px;
-      width: 340px;
+      width: min(420px, 90vw);
       text-align: left;
     }
 
     .problem h2 {
-      margin: 0 0 10px 0;
-      color: #a40000;
-      font-size: 1.1em;
+      margin: 0 0 10px;
+      color: var(--crimson);
+      font-size: 1.05rem;
     }
 
     .problem p {
-      font-size: 1.1em;
-      line-height: 1.4;
+      font-size: 1.08rem;
+      line-height: 1.45;
+      margin: 0 0 10px;
     }
 
     ol {
@@ -58,33 +77,55 @@
     }
 
     ol li {
-      margin-bottom: 6px;
-      font-size: 1.05em;
+      margin-bottom: 8px;
+      font-size: 1.05rem;
     }
-
-    #resetBtn {
-      position: fixed;
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      writing-mode: vertical-rl;
-      background: #0077cc;
-      color: white;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      padding: 16px 8px;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-
-    #resetBtn:hover { background: #005fa3; }
 
     footer {
-      margin-top: 50px;
+      margin-top: 40px;
       color: #555;
       font-size: 0.9em;
     }
+
+    /* Sticky bottom toolbar with ruler look */
+    .toolbar {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: #ffeaa7; /* ruler yellow */
+      border-top: 3px solid #e1d090;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      gap: 16px;
+      z-index: 1000;
+    }
+
+    .ruler-marks {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(to right, rgba(0,0,0,0.2) 1px, transparent 1px);
+      background-size: 20px 100%;
+      opacity: 0.25;
+    }
+
+    #resetBtn {
+      position: relative;
+      z-index: 1;
+      background: #0077cc;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    #resetBtn:hover { background: #005fa3; }
   </style>
 </head>
 
@@ -98,11 +139,15 @@
     <div class="problem" id="problem2"></div>
   </div>
 
-  <button id="resetBtn">RESET<br>PROBLEMS</button>
-
   <footer>
     <p>This website created by <strong>Del Sol Code Club</strong></p>
   </footer>
+
+  <!-- Sticky bottom toolbar -->
+  <div class="toolbar" role="region" aria-label="Controls">
+    <div class="ruler-marks" aria-hidden="true"></div>
+    <button id="resetBtn" title="Load a new random grade pair">Reset Problems</button>
+  </div>
 
   <script>
     const gradeProblems = [
@@ -130,28 +175,28 @@
       {
         grade: 9,
         problems: [
-          { q: "Find slope of y=3x+7", a: ["3", "7", "1/3", "0", "-3"], correct: "3" },
+          { q: "Find slope of y = 3x + 7", a: ["3", "7", "1/3", "0", "-3"], correct: "3" },
           { q: "Solve for y: 2x - y = 6", a: ["y=2x+6", "y=6x-2", "y=2x-6", "y=-2x+6", "y=-2x-6"], correct: "y=2x-6" }
         ]
       },
       {
         grade: 10,
         problems: [
-          { q: "Simplify: (x+3)(x+2)", a: ["x²+5x+6", "x²+6x+5", "x²+3x+2", "x²+2x+3", "x²+4x+6"], correct: "x²+5x+6" },
-          { q: "Factor: x² - 9", a: ["(x+9)(x-9)", "(x+3)(x-3)", "(x+9)(x-1)", "(x+6)(x-6)", "Prime"], correct: "(x+3)(x-3)" }
+          { q: "Expand: (x + 3)(x + 2)", a: ["x²+5x+6", "x²+6x+5", "x²+3x+2", "x²+2x+3", "x²+4x+6"], correct: "x²+5x+6" },
+          { q: "Factor: x² − 9", a: ["(x+9)(x-9)", "(x+3)(x-3)", "(x+9)(x-1)", "(x+6)(x-6)", "Prime"], correct: "(x+3)(x-3)" }
         ]
       },
       {
         grade: 11,
         problems: [
-          { q: "Solve: log₂(x)=3", a: ["x=6", "x=8", "x=9", "x=12", "x=16"], correct: "x=8" },
+          { q: "Solve: log₂(x) = 3", a: ["x=6", "x=8", "x=9", "x=12", "x=16"], correct: "x=8" },
           { q: "Simplify: (3x²y)(2xy³)", a: ["6x³y³", "6x²y³", "6x³y⁴", "5x³y³", "6xy⁵"], correct: "6x³y⁴" }
         ]
       },
       {
         grade: 12,
         problems: [
-          { q: "Find derivative of f(x)=3x²", a: ["3x", "6x", "9x²", "x³", "3x²"], correct: "6x" },
+          { q: "Find derivative of f(x) = 3x²", a: ["3x", "6x", "9x²", "x³", "3x²"], correct: "6x" },
           { q: "Simplify: sin²θ + cos²θ", a: ["0", "1", "2", "sinθcosθ", "Undefined"], correct: "1" }
         ]
       }
