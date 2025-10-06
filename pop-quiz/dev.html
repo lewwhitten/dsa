@@ -11,15 +11,15 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
+      justify-content: flex-start;
+      min-height: 100vh;
     }
 
     /* ==== EXPECTATIONS BAR ==== */
     #expectations {
       color: #cc0000;
       text-align: center;
-      margin-bottom: 20px;
+      margin: 20px 0;
       font-weight: 600;
       font-size: 1.1em;
       line-height: 1.4;
@@ -58,14 +58,14 @@
     .table-box {
       margin: 0 auto;
       width: clamp(320px, 52vw, 720px);
-      aspect-ratio: 4 / 3;                 /* shorter than tall */
+      aspect-ratio: 4 / 3;
       background: #ffffff;
-      border: 10px solid #222;             /* thick table edge */
+      border: 10px solid #222;
       border-radius: 18px;
       position: relative;
       box-shadow: 0 10px 24px rgba(0,0,0,.12);
     }
-    /* Decorative legs (optional) */
+
     .table-box::before, .table-box::after{
       content:"";
       position:absolute;
@@ -77,25 +77,24 @@
     .table-box::before{ left:22px; }
     .table-box::after { right:22px; }
 
-    /* Four problem spots: two on left edge, two on right edge */
+    /* Closer problem placement */
     .spot {
       position: absolute;
       max-width: 44%;
       text-align: center;
       line-height: 1.1;
-      padding: 8px 10px;
+      padding: 6px 8px;
       border-radius: 10px;
-      font-size: clamp(22px, 3.2vw, 34px);
+      font-size: clamp(22px, 3vw, 34px);
       background: #fffdf8;
       border: 1px solid #f0e6c7;
       box-shadow: 0 4px 12px rgba(0,0,0,.06);
     }
-    /* Left edge (upper/lower) */
-    .L1 { left: 10px;  top: 25%; transform: translateY(-50%); }
-    .L2 { left: 10px;  top: 75%; transform: translateY(-50%); }
-    /* Right edge (upper/lower) */
-    .R1 { right: 10px; top: 25%; transform: translateY(-50%); }
-    .R2 { right: 10px; top: 75%; transform: translateY(-50%); }
+    /* Bring them closer to center */
+    .L1 { left: 12%; top: 40%; transform: translate(-50%, -50%); }
+    .L2 { left: 12%; top: 60%; transform: translate(-50%, -50%); }
+    .R1 { right: 12%; top: 40%; transform: translate(50%, -50%); }
+    .R2 { right: 12%; top: 60%; transform: translate(50%, -50%); }
 
     .fraction {
       display: inline-block;
@@ -107,6 +106,14 @@
     .fraction .line { border-top: 2px solid #000; margin: 3px 0; }
 
     .x { display:inline-block; padding:0 .25em; font-weight:900; }
+
+    /* Footer */
+    footer {
+      margin-top: 40px;
+      color: #555;
+      font-weight: 600;
+      text-align: center;
+    }
 
     @media (max-width: 800px) {
       #layout { border-spacing: 20px; }
@@ -136,24 +143,27 @@
         <audio id="popSound" src="pop.mp3" preload="auto"></audio>
       </td>
 
-      <!-- RIGHT: Four problems on a shorter, wide “table” -->
+      <!-- RIGHT: Table with four fraction problems -->
       <td id="problemBlock">
         <h1>Fraction Multiplication</h1>
-
-        <div class="table-box" aria-label="Table with four problems">
+        <div class="table-box">
           <div class="spot L1" id="pL1"></div>
           <div class="spot L2" id="pL2"></div>
           <div class="spot R1" id="pR1"></div>
           <div class="spot R2" id="pR2"></div>
         </div>
-
       </td>
     </tr>
   </table>
 
+  <footer>
+    <br><br><br>
+    Created by Del Sol Code Club
+    <br><br><br>
+  </footer>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      /* ---------- DOM refs ---------- */
       const popper   = document.getElementById('popper');
       const counter  = document.getElementById('counter');
       const resetBtn = document.getElementById('resetBtn');
@@ -164,61 +174,43 @@
       const elR1 = document.getElementById('pR1');
       const elR2 = document.getElementById('pR2');
 
-      /* ---------- POP button ---------- */
       let count = 0;
       let isRed = false;
 
       popper.addEventListener('click', () => {
-        count += 1;
+        count++;
         counter.textContent = 'Pops: ' + count;
-
-        // Try to play; ignore if missing/blocking
         try {
           soundEl.currentTime = 0;
           soundEl.play().catch(()=>{});
         } catch (_) {}
-
-        // Toggle color
         popper.style.background = isRed
           ? 'radial-gradient(circle at 30% 30%, #ffcc00, #ff9900)'
           : 'radial-gradient(circle at 30% 30%, #cc0000, #660000)';
         isRed = !isRed;
       });
 
-      /* ---------- Fractions ---------- */
-      function randomInt(min, max){
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-      }
-      function fracHTML(n, d){
-        return `
-          <span class="fraction">
-            <span>${n}</span>
-            <span class="line"></span>
-            <span>${d}</span>
-          </span>
-        `;
+      function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+      function fracHTML(n,d){
+        return `<span class="fraction"><span>${n}</span><span class="line"></span><span>${d}</span></span>`;
       }
       function randomFracTimes(){
-        const n1 = randomInt(1, 9), d1 = randomInt(2, 12);
-        const n2 = randomInt(1, 9), d2 = randomInt(2, 12);
+        const n1=randomInt(1,9),d1=randomInt(2,12);
+        const n2=randomInt(1,9),d2=randomInt(2,12);
         return `${fracHTML(n1,d1)} <span class="x">×</span> ${fracHTML(n2,d2)}`;
       }
       function generateFour(){
-        elL1.innerHTML = randomFracTimes();
-        elL2.innerHTML = randomFracTimes();
-        elR1.innerHTML = randomFracTimes();
-        elR2.innerHTML = randomFracTimes();
+        elL1.innerHTML=randomFracTimes();
+        elL2.innerHTML=randomFracTimes();
+        elR1.innerHTML=randomFracTimes();
+        elR2.innerHTML=randomFracTimes();
       }
-
-      /* ---------- Reset ---------- */
       function resetAll(){
-        count = 0;
-        counter.textContent = 'Pops: 0';
+        count=0;
+        counter.textContent='Pops: 0';
         generateFour();
       }
       resetBtn.addEventListener('click', resetAll);
-
-      /* ---------- Initial ---------- */
       generateFour();
     });
   </script>
