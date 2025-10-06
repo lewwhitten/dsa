@@ -26,13 +26,8 @@
     }
 
     /* ==== TWO-COLUMN LAYOUT ==== */
-    #layout {
-      border-collapse: separate;
-      border-spacing: 40px;
-    }
-    #layout td {
-      vertical-align: middle;
-    }
+    #layout { border-collapse: separate; border-spacing: 40px; }
+    #layout td { vertical-align: middle; }
 
     /* ==== POP BUTTON STYLES ==== */
     #popBlock { text-align: center; }
@@ -58,7 +53,51 @@
     /* ==== MATH PROBLEM STYLES ==== */
     #problemBlock { min-width: 380px; text-align: center; }
     h1 { margin: 0 0 10px; color: #333; font-weight: 600; }
-    #problem { font-size: 2.4em; line-height: 1.1; }
+
+    /* Shorter, wider "table" */
+    .table-box {
+      margin: 0 auto;
+      width: clamp(320px, 52vw, 720px);
+      aspect-ratio: 4 / 3;                 /* shorter (less tall) than before */
+      background: #ffffff;
+      border: 10px solid #222;             /* thick table edge */
+      border-radius: 18px;
+      position: relative;
+      box-shadow: 0 10px 24px rgba(0,0,0,.12);
+    }
+    /* Optional legs purely decorative */
+    .table-box::before, .table-box::after{
+      content:"";
+      position:absolute;
+      width: 18px; height: 28px;
+      background:#222; border-radius: 6px;
+      bottom:-28px;
+      box-shadow: 0 6px 10px rgba(0,0,0,.15);
+    }
+    .table-box::before{ left:22px; }
+    .table-box::after { right:22px; }
+
+    /* Four problem spots: two on left edge, two on right edge */
+    .spot {
+      position: absolute;
+      max-width: 44%;
+      text-align: center;
+      line-height: 1.1;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: clamp(22px, 3.2vw, 34px);
+      background: #fffdf8;
+      border: 1px solid #f0e6c7;
+      box-shadow: 0 4px 12px rgba(0,0,0,.06);
+    }
+    /* Left edge positions (upper & lower) */
+    .L1 { left: 10px;  top: 22%; transform: translateY(-50%); }
+    .L2 { left: 10px;  top: 78%; transform: translateY(-50%); }
+
+    /* Right edge positions (upper & lower) */
+    .R1 { right: 10px; top: 22%; transform: translateY(-50%); }
+    .R2 { right: 10px; top: 78%; transform: translateY(-50%); }
+
     .fraction {
       display: inline-block;
       text-align: center;
@@ -68,16 +107,18 @@
     .fraction span { display: block; padding: 0 6px; }
     .fraction .line { border-top: 2px solid #000; margin: 3px 0; }
 
+    .x { display:inline-block; padding:0 .25em; font-weight:900; }
+
     @media (max-width: 800px) {
       #layout { border-spacing: 20px; }
-      #problem { font-size: 2em; }
       #popper { width: 160px; height: 160px; }
+      .spot { font-size: clamp(18px, 4vw, 28px); }
     }
   </style>
 </head>
 <body>
 
-  <!-- === EXPECTATIONS BANNER (edit text here) === -->
+  <!-- === EXPECTATIONS BANNER === -->
   <div id="expectations">
     Mr. Bellezas &amp; Whitten Expectations:<br>
     No talking or glancing at neighbor’s whiteboard.<br>
@@ -92,32 +133,45 @@
       <td id="popBlock">
         <div id="popper">POP<br>QUIZ!</div>
         <div id="counter">Pops: 0</div>
-        <button id="resetBtn">Reset / New Problem</button>
-        <!-- Sound file: replace “pop.mp3” with any local .mp3 name -->
+        <button id="resetBtn">Reset / New Problems</button>
+        <!-- If pop.mp3 is missing or blocked, we fail gracefully -->
         <audio id="popSound" src="pop.mp3" preload="auto"></audio>
       </td>
 
-      <!-- RIGHT: Math problem -->
+      <!-- RIGHT: Four problems on a shorter, wide “table” -->
       <td id="problemBlock">
-        <h1>Fraction Addition</h1>
-        <div id="problem"></div>
+        <h1>Fraction Math</h1>
+
+        <div class="table-box" aria-label="Table with four problems (two on each long side)">
+          <div class="spot L1" id="pL1"></div>
+          <div class="spot L2" id="pL2"></div>
+          <div class="spot R1" id="pR1"></div>
+          <div class="spot R2" id="pR2"></div>
+        </div>
+
       </td>
     </tr>
   </table>
-
+ <footer><br><br><br><br><br>Created by Del Sol Code Club</footer>
   <script>
-    // === POP BUTTON LOGIC ===
+    // === POP BUTTON LOGIC (with audio fail-safe) ===
     let count = 0;
     let isRed = false;
     const popper  = document.getElementById('popper');
     const counter = document.getElementById('counter');
     const sound   = document.getElementById('popSound');
 
-    popper.addEventListener('click', () => {
+    popper.addEventListener('click', async () => {
       count++;
       counter.textContent = 'Pops: ' + count;
-      sound.currentTime = 0;
-      sound.play();
+
+      // Try to play sound, but don't let a browser block/error stop the script.
+      try {
+        sound.currentTime = 0;
+        await sound.play();
+      } catch (_) {
+        /* ignore audio errors (e.g., missing file or autoplay policy) */
+      }
 
       // Toggle yellow ↔ red each click
       popper.style.background = isRed
@@ -126,11 +180,13 @@
       isRed = !isRed;
     });
 
-    // === FRACTION PROBLEM GENERATOR ===
-    const problemEl = document.getElementById('problem');
+    // === FOUR FRACTION MULTIPLICATION PROBLEMS ===
+    const elL1 = document.getElementById('pL1');
+    const elL2 = document.getElementById('pL2');
+    const elR1 = document.getElementById('pR1');
+    const elR2 = document.getElementById('pR2');
     const resetBtn  = document.getElementById('resetBtn');
 
-    // Helper for fraction layout
     function fracHTML(n, d) {
       return `
         <span class="fraction">
@@ -140,33 +196,32 @@
         </span>
       `;
     }
-
-    // Random integer helper
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
-
-    // === EDIT HERE if you want to change math problem type ===
-    // Current: random fraction × fraction
-    function generateProblem() {
-      const n1 = randomInt(1, 9);
-      const d1 = randomInt(2, 12);
-      const n2 = randomInt(1, 9);
-      const d2 = randomInt(2, 12);
-      problemEl.innerHTML = `${fracHTML(n1, d1)} + ${fracHTML(n2, d2)}`;
+    function randomFracTimes() {
+      const n1 = randomInt(1, 9),  d1 = randomInt(2, 12);
+      const n2 = randomInt(1, 9),  d2 = randomInt(2, 12);
+      return `${fracHTML(n1, d1)} <span class="x">+</span> ${fracHTML(n2, d2)}`;
     }
 
-    // === RESET FUNCTION ===
-    function resetAndNewProblem() {
+    function generateFour() {
+      elL1.innerHTML = randomFracTimes();
+      elL2.innerHTML = randomFracTimes();
+      elR1.innerHTML = randomFracTimes();
+      elR2.innerHTML = randomFracTimes();
+    }
+
+    function resetAll() {
       count = 0;
       counter.textContent = 'Pops: 0';
-      generateProblem();
+      generateFour();
     }
 
-    resetBtn.addEventListener('click', resetAndNewProblem);
+    resetBtn.addEventListener('click', resetAll);
 
     // === INITIAL LOAD ===
-    generateProblem();
+    generateFour();
   </script>
 
 </body>
