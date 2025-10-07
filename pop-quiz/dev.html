@@ -29,19 +29,34 @@
     #layout { border-collapse: separate; border-spacing: 40px; }
     #layout td { vertical-align: middle; }
 
-    /* ==== POP BLOCK ==== */
-    #popBlock { text-align: center; min-width: 260px; }
+    /* ==== LEFT: Notes + POP + options ==== */
+    #popBlock { text-align: center; min-width: 280px; }
     .recall {
       background: #fff;
       border: 1px solid #e5e7eb;
       border-radius: 10px;
       padding: 10px 12px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       font-size: 0.95em;
       line-height: 1.35;
       box-shadow: 0 4px 12px rgba(0,0,0,.06);
     }
     .recall b { color:#111827; }
+
+    .opts {
+      text-align:left;
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:10px;
+      padding:10px 12px;
+      margin: 0 auto 10px;
+      width: 220px;
+      font-size: 0.9em;
+      box-shadow: 0 4px 12px rgba(0,0,0,.06);
+    }
+    .opts label { display:flex; align-items:center; gap:8px; margin:6px 0; cursor:pointer; }
+    .opts input[type="checkbox"] { transform: translateY(1px); }
+
     #popper {
       width: 200px; height: 200px;
       border-radius: 50%;
@@ -61,11 +76,10 @@
     }
     button:hover { background: #005fa3; }
 
-    /* ==== RIGHT SIDE: PROBLEMS ==== */
+    /* ==== RIGHT: PROBLEMS ==== */
     #problemBlock { min-width: 380px; text-align: center; }
     h1 { margin: 0 0 10px; color: #333; font-weight: 600; }
 
-    /* Shorter, wider "table" */
     .table-box {
       margin: 0 auto;
       width: clamp(320px, 52vw, 720px);
@@ -77,7 +91,6 @@
       box-shadow: 0 10px 24px rgba(0,0,0,.12);
     }
 
-    /* Four problem spots: two left edge, two right edge */
     .spot {
       position: absolute;
       max-width: 44%;
@@ -96,8 +109,6 @@
     .R1 { right: 10px; top: 22%; transform: translateY(-50%); }
     .R2 { right: 10px; top: 78%; transform: translateY(-50%); }
 
-    .x { display:inline-block; padding:0 .25em; font-weight:900; }
-
     @media (max-width: 800px) {
       #layout { border-spacing: 20px; }
       #popper { width: 160px; height: 160px; }
@@ -109,7 +120,6 @@
 </head>
 <body>
 
-  <!-- === EXPECTATIONS BANNER === -->
   <div id="expectations">
     Mr. Bellezas &amp; Whitten Expectations:<br>
     No talking or glancing at neighbor’s whiteboard.<br>
@@ -117,14 +127,19 @@
     Hold your board up for collection when done!
   </div>
 
-  <!-- === MAIN TWO-COLUMN LAYOUT === -->
   <table id="layout">
     <tr>
-      <!-- LEFT: Notes + Pop button -->
+      <!-- LEFT: Notes + options + POP -->
       <td id="popBlock">
         <div class="recall">
-          <b>Recall:</b> (x₁, y₁) and (x₂, y₂)&nbsp;&nbsp;;&nbsp;&nbsp;
+          <b>Recall:</b> (x₁, y₁) and (x₂, y₂) &nbsp;&nbsp;;&nbsp;&nbsp;
           <b>m</b> = (y₂ − y₁) / (x₂ − x₁)
+        </div>
+
+        <div class="opts">
+          <label><input type="checkbox" id="optNeg"> Allow negatives (−9…9)</label>
+          <label><input type="checkbox" id="optVert"> Include vertical lines (x₂ = x₁)</label>
+          <label><input type="checkbox" id="optHorz"> Include horizontal lines (y₂ = y₁)</label>
         </div>
 
         <div id="popper">POP<br>QUIZ!</div>
@@ -136,14 +151,12 @@
       <!-- RIGHT: Four slope problems -->
       <td id="problemBlock">
         <h1>Find the Slope (m)</h1>
-
-        <div class="table-box" aria-label="Table with four slope problems (two on each long side)">
+        <div class="table-box" aria-label="Four slope problems, two on each long side">
           <div class="spot L1" id="pL1"></div>
           <div class="spot L2" id="pL2"></div>
           <div class="spot R1" id="pR1"></div>
           <div class="spot R2" id="pR2"></div>
         </div>
-
       </td>
     </tr>
   </table>
@@ -151,7 +164,7 @@
   <footer><br><br><br>Created by Del Sol Code Club</footer>
 
   <script>
-    // === POP BUTTON LOGIC (with audio fail-safe) ===
+    // === POP BUTTON LOGIC ===
     let count = 0;
     let isRed = false;
     const popper  = document.getElementById('popper');
@@ -161,37 +174,60 @@
     popper.addEventListener('click', async () => {
       count++;
       counter.textContent = 'Pops: ' + count;
-      try {
-        sound.currentTime = 0;
-        await sound.play();
-      } catch (_) {}
+      try { sound.currentTime = 0; await sound.play(); } catch (_) {}
       popper.style.background = isRed
         ? 'radial-gradient(circle at 30% 30%, #ffcc00, #ff9900)'
         : 'radial-gradient(circle at 30% 30%, #cc0000, #660000)';
       isRed = !isRed;
     });
 
-    // === FOUR SLOPE PROBLEMS (single-digit coordinates, avoid x2==x1) ===
+    // === OPTIONS ===
+    const optNeg  = document.getElementById('optNeg');
+    const optVert = document.getElementById('optVert');
+    const optHorz = document.getElementById('optHorz');
+
+    // === PROBLEM SPOTS ===
     const elL1 = document.getElementById('pL1');
     const elL2 = document.getElementById('pL2');
     const elR1 = document.getElementById('pR1');
     const elR2 = document.getElementById('pR2');
     const resetBtn  = document.getElementById('resetBtn');
 
-    function rInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+    function rInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-    // Generates two points with single-digit coordinates (0–9) and ensures x2 != x1
     function randomSlopeProblem() {
-      let x1 = rInt(0,9), y1 = rInt(0,9);
-      let x2 = rInt(0,9), y2 = rInt(0,9);
-      // Ensure not vertical
-      while (x2 === x1) { x2 = rInt(0,9); }
-      // Optional: avoid identical points
-      if (x1 === x2 && y1 === y2) y2 = (y2 + 1) % 10;
+      const allowNeg   = optNeg.checked;
+      const includeV   = optVert.checked; // allow x2==x1
+      const includeH   = optHorz.checked; // allow y2==y1
 
-      return `( ${x1}, ${y1} )  &  ( ${x2}, ${y2} )`;
+      const min = allowNeg ? -9 : 0;
+      const max = 9;
+
+      let x1 = rInt(min, max), y1 = rInt(min, max);
+      let x2 = rInt(min, max), y2 = rInt(min, max);
+
+      // Avoid identical points
+      while (x1 === x2 && y1 === y2) {
+        x2 = rInt(min, max); y2 = rInt(min, max);
+      }
+
+      // Enforce vertical/horizontal inclusion preferences
+      if (!includeV) {
+        while (x2 === x1) { x2 = rInt(min, max); }
+      }
+      if (!includeH) {
+        while (y2 === y1) { y2 = rInt(min, max); }
+      }
+
+      // Final guard in case both disallowed and we accidentally matched both at once
+      if (!includeV && !includeH) {
+        while ((x2 === x1) || (y2 === y1)) {
+          x2 = rInt(min, max); y2 = rInt(min, max);
+          if (x1 !== x2 && y1 !== y2) break;
+        }
+      }
+
+      return `( ${x1}, ${y1} )   &   ( ${x2}, ${y2} )`;
     }
 
     function generateFour() {
@@ -208,10 +244,12 @@
     }
 
     resetBtn.addEventListener('click', resetAll);
+    optNeg.addEventListener('change', generateFour);
+    optVert.addEventListener('change', generateFour);
+    optHorz.addEventListener('change', generateFour);
 
-    // === INITIAL LOAD ===
+    // Initial render
     generateFour();
   </script>
-
 </body>
 </html>
