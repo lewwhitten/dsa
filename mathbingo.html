@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Math Bingo Picker</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 24px;
+      background: #f7f7f7;
+      color: #111;
+      text-align: center;
+    }
+    .card {
+      max-width: 820px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 44px;
+      letter-spacing: 1px;
+    }
+    .sub {
+      margin: 0 0 18px;
+      font-size: 18px;
+    }
+    .screen {
+      margin: 18px auto 10px;
+      min-height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      border: 2px dashed #bbb;
+      background: #fcfcfc;
+      padding: 18px;
+    }
+    .expr {
+      font-size: 54px;
+      line-height: 1.1;
+      font-weight: 700;
+    }
+    .note {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #444;
+    }
+    .row {
+      margin-top: 18px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    button {
+      font-size: 18px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .meta {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #333;
+    }
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #eee;
+      margin: 6px 6px 0 0;
+    }
+    .small {
+      font-size: 12px;
+      color: #666;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>MATH BINGO!</h1>
+    <p class="sub">I am learning how to use zero and negative exponents!</p>
+
+    <div class="screen" aria-live="polite">
+      <div id="display" class="expr">Press “Pick”</div>
+    </div>
+
+    <div class="note" id="status">Preset sequence. Looks random. Lands on the next question.</div>
+
+    <div class="row">
+      <button id="pickBtn">Pick</button>
+      <button id="resetBtn">Reset</button>
+      <button id="showNextBtn">Show Next (Teacher)</button>
+    </div>
+
+    <div class="meta">
+      <span class="pill" id="progressPill">0 / 10</span>
+      <span class="pill" id="roundPill">Round: —</span>
+    </div>
+
+    <div class="small">
+      Tip: If you embed this in Google Sites and it appears cut off, increase the embed height.
+    </div>
+  </div>
+
+  <script>
+    // PRESET SEQUENCE (edit here if you want different order)
+    // Using HTML <sup> for exponents so it displays nicely.
+    const sequence = [
+      { round: "Set 1 (Zero exponents)", html: "5<sup>0</sup>" },
+      { round: "Set 1 (Zero exponents)", html: "10<sup>0</sup>" },
+      { round: "Set 1 (Zero exponents)", html: "7<sup>0</sup>" },
+
+      { round: "Set 2 (Negative exponents)", html: "5<sup>-1</sup>" },
+      { round: "Set 2 (Negative exponents)", html: "3<sup>-1</sup>" },
+      { round: "Set 2 (Negative exponents)", html: "10<sup>-2</sup>" },
+
+      { round: "Set 3 (Zero + Negative)", html: "2<sup>0</sup> × 3<sup>-1</sup>" },
+      { round: "Set 3 (Zero + Negative)", html: "4<sup>0</sup> × 5<sup>-1</sup>" },
+      { round: "Set 3 (Zero + Negative)", html: "6<sup>0</sup> × 2<sup>-2</sup>" },
+
+      // FINAL YOU DO (zinger)
+      { round: "Final YOU DO (Independent)", html: "(3<sup>2</sup>)(2<sup>0</sup>)(6<sup>-1</sup>)" },
+    ];
+
+    // Pool used for the "flash" effect (includes all sequence items)
+    // You can add decoys here if you want it to look even more random.
+    const flashPool = sequence.map(x => x.html);
+
+    const display = document.getElementById("display");
+    const status = document.getElementById("status");
+    const pickBtn = document.getElementById("pickBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const showNextBtn = document.getElementById("showNextBtn");
+    const progressPill = document.getElementById("progressPill");
+    const roundPill = document.getElementById("roundPill");
+
+    let idx = 0;
+    let flashing = false;
+    let flashTimer = null;
+
+    function updateMeta() {
+      progressPill.textContent = `${idx} / ${sequence.length}`;
+      roundPill.textContent = idx === 0 ? "Round: —" : `Round: ${sequence[Math.max(0, idx-1)].round}`;
+    }
+
+    function setDisplayHtml(html) {
+      display.innerHTML = html;
+    }
+
+    function flashThenLand() {
+      if (flashing) return;
+      if (idx >= sequence.length) {
+        status.textContent = "All done! Press Reset to start over.";
+        return;
+      }
+
+      flashing = true;
+      pickBtn.disabled = true;
+      showNextBtn.disabled = true;
+      status.textContent = "Shuffling…";
+
+      // Flash speed + duration (tweak these if you want)
+      const intervalMs = 70;
+      const durationMs = 1400;
+
+      let t = 0;
+      flashTimer = setInterval(() => {
+        // pick a random item from the flash pool
+        const rand = flashPool[Math.floor(Math.random() * flashPool.length)];
+        setDisplayHtml(rand);
+        t += intervalMs;
+        if (t >= durationMs) {
+          clearInterval(flashTimer);
+          flashTimer = null;
+
+          // Land on the predetermined next item
+          const item = sequence[idx];
+          setDisplayHtml(item.html);
+          status.textContent = `Landed on: ${item.round}`;
+          idx += 1;
+          updateMeta();
+
+          flashing = false;
+          pickBtn.disabled = false;
+          showNextBtn.disabled = false;
+
+          if (idx >= sequence.length) {
+            status.textContent = "Final question landed. (YOU DO) Show work to claim Bingo!";
+          }
+        }
+      }, intervalMs);
+    }
+
+    pickBtn.addEventListener("click", flashThenLand);
+
+    resetBtn.addEventListener("click", () => {
+      if (flashTimer) clearInterval(flashTimer);
+      flashTimer = null;
+      flashing = false;
+      idx = 0;
+      setDisplayHtml("Press “Pick”");
+      status.textContent = "Preset sequence. Looks random. Lands on the next question.";
+      pickBtn.disabled = false;
+      showNextBtn.disabled = false;
+      updateMeta();
+    });
+
+    // Teacher-only: preview the next item without advancing
+    showNextBtn.addEventListener("click", () => {
+      if (idx >= sequence.length) {
+        status.textContent = "No next item. Press Reset to start over.";
+        return;
+      }
+      status.textContent = `Next up (teacher preview): ${sequence[idx].round}`;
+      setDisplayHtml(sequence[idx].html);
+    });
+
+    updateMeta();
+  </script>
+</body>
+</html>
